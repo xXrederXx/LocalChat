@@ -1,5 +1,7 @@
 import socket
 import threading
+from gui.window import Window;
+
 
 HOST = "127.0.0.1"  # IP des Servers
 PORT = 9999  # Port des Servers (> 1023)
@@ -39,4 +41,6 @@ def start_client():
         client_socket.close()
 
 if __name__ == "__main__":
+    app = Window()
     start_client()
+    app.mainloop()
