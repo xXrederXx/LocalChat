@@ -10,8 +10,12 @@ class Footer(CTkFrame):
         self.rowconfigure((0), weight=1)
         self.columnconfigure((0), weight=1)
 
-        msg_input = CTkEntry(self, height=32, placeholder_text="message")
-        msg_input.grid(row=0, column=0, sticky="NSWE", padx=4, pady=4)
+        self.msg_input = CTkEntry(self, height=32, placeholder_text="message")
+        self.msg_input.grid(row=0, column=0, sticky="NSWE", padx=4, pady=4)
 
-        submit_btn = CTkButton(self, height=32, text="send")
-        submit_btn.grid(row=0, column=1, sticky="NSWE", padx=4, pady=4)
+        self.submit_btn = CTkButton(self, height=32, text="send", command=self.send_msg)
+        self.submit_btn.grid(row=0, column=1, sticky="NSWE", padx=4, pady=4)
+    
+    def send_msg(self):
+        input = self.msg_input.get()
+        self.app.send_msg(input)

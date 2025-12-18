@@ -56,6 +56,7 @@ def handle_client(
             message = process_msg(message, client_socket)
             if not message:
                 continue
+            print(message)
             broadcast(message.encode(ENCODING), client_socket)
     except OSError:
         pass

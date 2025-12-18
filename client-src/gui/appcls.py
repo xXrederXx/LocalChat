@@ -15,10 +15,11 @@ class App:
         if self.socket == None:
             print("No Connection")
             return
+        print("sendt msg")
         self.socket.send(msg.encode(self.ENCODING))
 
     def reveive_msg(self, msg: str):
-        pass
+        self.window.chat.add_msg(msg)
 
     def msg_listener(self):
         while True:
