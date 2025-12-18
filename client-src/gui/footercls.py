@@ -1,9 +1,12 @@
 from customtkinter import *
+from gui.appcls import App
 
 
 class Footer(CTkFrame):
-    def __init__(self, master):
-        super().__init__(master, height= 50)
+    def __init__(self, master, app: App):
+        super().__init__(master, height=50)
+        self.app = app
+
         self.rowconfigure((0), weight=1)
         self.columnconfigure((0), weight=1)
 

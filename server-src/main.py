@@ -4,8 +4,8 @@ import threading
 import numpy
 from typing import List, Tuple, Dict
 
-HOST: str = "172.17.103.104"
-PORT: int = 6766
+HOST: str = "127.0.0.1"
+PORT: int = 6776
 ENCODING = "utf-8"
 
 clients: Dict[socket.socket, str] = {}
@@ -13,15 +13,16 @@ clients: Dict[socket.socket, str] = {}
 
 # Send recived data to all clients
 def broadcast(message: bytes, sender_socket: socket.socket) -> None:
-    print(f"BROADCAST MESSAGE (msg: {message.decode(ENCODING)})")
-    for client, name in clients.items():
+    prefix = (clients[sender_socket] + " > ").encode(ENCODING)
+
+    for client in list(clients.keys()):
         if client is not sender_socket:
             try:
-                message = (clients[sender_socket] + " > ").encode(ENCODING) + message
-                client.send(message)
+                client.send(prefix + message)
             except OSError:
                 client.close()
-                clients.pop(client)
+                clients.pop(client, None)
+
 
 
 def process_msg(msg: str, sender_socket: socket.socket) -> str | None:
