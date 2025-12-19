@@ -21,8 +21,8 @@ class App:
 
         msg = msg.strip()
 
-        if msg.startswith("/name "):
-            self.name = msg.replace("/name ")
+        if msg.startswith("/setname "):
+            self.name = msg.replace("/setname ", "")
 
         # COMMAND
         if msg.startswith("/"):
