@@ -23,6 +23,12 @@ class ClientManager:
     def get_name(self, client: socket.socket) -> Optional[str]:
         return self._clients.get(client)
 
+    def get_client(self, name: str) -> Optional[socket.socket]:
+        for key, value in self._clients.items():
+            if value == name:
+                return key
+        return None
+
     def get_all_names(self) -> list[str]:
         return list(self._clients.values())
 

@@ -2,7 +2,7 @@ import json
 import socket
 from client_manager import ClientManager
 from config import ENCODING
-
+import payload_generator as pg
 
 class MessageHandler:
     def __init__(self, clients: ClientManager) -> None:
@@ -12,17 +12,10 @@ class MessageHandler:
         sender_name = self.clients.get_name(sender)
         if not sender_name:
             return
-        payload = {
-            "type": "msg",
-            "msg": message,
-            "sender": {
-                "name": self.clients.get_name(sender)
-            }
-        }
-        prefix = f"{sender_name} > "
+        payload = pg.generate_msg(message, self.clients.get_name(sender))
         for client in self.clients.get_all_clients():
             try:
-                client.send(json.dumps(payload).encode(ENCODING))
+                client.send(payload)
             except OSError:
                 client.close()
                 self.clients.remove_client(client)
@@ -40,7 +33,15 @@ class MessageHandler:
         elif cmd == "active":
             users = "\n".join(f"\t{name}" for name in self.clients.get_all_names())
             message = f"ACTIVE USERS:\n{users}"
-            sender.send(message.encode(ENCODING))
+            sender.send(pg.generate_private_msg(message, "[System]"))
+
+        elif cmd == "pm":
+            message = "".join(f" {arg}" for arg in args[1:])
+            receiver = self.clients.get_client(args[0])
+            if receiver is None:
+                print(f"User not found ({args[0]})")
+                return
+            receiver.send(pg.generate_private_msg(message, self.clients.get_name(sender)))
 
     def process_payload(self, payload: dict, sender: socket.socket) -> None:
         msg_type = payload.get("type")
