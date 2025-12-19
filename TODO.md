@@ -1,13 +1,13 @@
 ## ToDos
 
-- [ ] client see own mesages
+- [x] client see own mesages
 - [ ] client see active users on side bar
 - [ ] client see connection status
 - [ ] server suport different requests
-  - [ ] user list request
-  - [ ] direct message
-- [ ] Use JSON for data transfer
-- [ ] Add direct messages
+  - [x] user list request
+  - [x] direct message
+- [x] Use JSON for data transfer
+- [x] Add direct messages
 - [ ] Add system notifications ([SYSTEM] Alice joined the chat oder [SYSTEM] Bob left the chat)
 - [ ] Add Commands
   - [ ] /kick user
@@ -17,8 +17,7 @@
   - [ ] /stats (msg sendt)
   - [ ] 
 - [ ] Improve GUI
-  - [ ] System msg -> Gray
-  - [ ] My MSG -> right aligned
-  - [ ] other msg -> left aligned
-  - [ ] private -> orange color
-  - [ ] public -> black
+  - [x] My MSG -> right aligned
+  - [x] other msg -> left aligned
+  - [x] private -> orange color
+  - [x] public -> black
