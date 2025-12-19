@@ -3,7 +3,8 @@ import socket
 from typing import Tuple
 from client_manager import ClientManager
 from message_handler import MessageHandler
-from config import ENCODING, BUFFER_SIZE
+from config import ENCODING, BUFFER_SIZE, SERVER_NAME
+import payload_generator as pg
 
 class ClientSession:
     def __init__(
@@ -20,6 +21,7 @@ class ClientSession:
 
     def run(self) -> None:
         print(f"New connection from {self.address}")
+        self.handler.broadcast(pg.generate_msg("NEW USER CONNECTED", SERVER_NAME))
         self.clients.add_client(self.client_socket)
 
         try:
@@ -38,4 +40,5 @@ class ClientSession:
             print(f"Connection closed: {self.address}")
             self.clients.remove_client(self.client_socket)
             self.client_socket.close()
+            self.handler.broadcast(pg.generate_msg("USER DISCONNECTED", SERVER_NAME))
 

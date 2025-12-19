@@ -3,7 +3,8 @@ import threading
 from client_manager import ClientManager
 from message_handler import MessageHandler
 from client_session import ClientSession
-from config import HOST, PORT
+from config import HOST, PORT, SERVER_NAME
+import payload_generator as pg
 
 class ChatServer:
     def __init__(self, host: str, port: int) -> None:
@@ -34,6 +35,7 @@ class ChatServer:
                 except socket.timeout:
                     continue
         except KeyboardInterrupt:
+            self.handler.broadcast(pg.generate_msg("SERVER SHUTTING DOWN", SERVER_NAME))
             print("Server shutting down...")
         finally:
             server_socket.close()

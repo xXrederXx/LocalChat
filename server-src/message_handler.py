@@ -1,24 +1,28 @@
 import json
 import socket
 from client_manager import ClientManager
-from config import ENCODING
+from config import ENCODING, SERVER_NAME
 import payload_generator as pg
 
 class MessageHandler:
     def __init__(self, clients: ClientManager) -> None:
         self.clients = clients
 
-    def broadcast(self, message: str, sender: socket.socket) -> None:
-        sender_name = self.clients.get_name(sender)
-        if not sender_name:
-            return
-        payload = pg.generate_msg(message, self.clients.get_name(sender))
+    def broadcast(self, payload: bytes) -> None:
         for client in self.clients.get_all_clients():
             try:
                 client.send(payload)
             except OSError:
                 client.close()
                 self.clients.remove_client(client)
+
+    def broadcast_msg(self, message: str, sender: socket.socket) -> None:
+        sender_name = self.clients.get_name(sender)
+        if not sender_name:
+            return
+        payload = pg.generate_msg(message, self.clients.get_name(sender))
+        self.broadcast(payload)
+
 
     def handle_command(self, payload: dict, sender: socket.socket) -> None:
         cmd = payload.get("cmd")
@@ -33,7 +37,7 @@ class MessageHandler:
         elif cmd == "active":
             users = "\n".join(f"\t{name}" for name in self.clients.get_all_names())
             message = f"ACTIVE USERS:\n{users}"
-            sender.send(pg.generate_private_msg(message, "[System]"))
+            sender.send(pg.generate_private_msg(message, SERVER_NAME))
 
         elif cmd == "pm":
             message = "".join(f" {arg}" for arg in args[1:])
@@ -49,6 +53,6 @@ class MessageHandler:
         if msg_type == "msg":
             message = payload.get("msg")
             if message:
-                self.broadcast(message, sender)
+                self.broadcast_msg(message, sender)
         elif msg_type == "cmd":
             self.handle_command(payload, sender)

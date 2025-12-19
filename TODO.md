@@ -8,7 +8,7 @@
   - [x] direct message
 - [x] Use JSON for data transfer
 - [x] Add direct messages
-- [ ] Add system notifications ([SYSTEM] Alice joined the chat oder [SYSTEM] Bob left the chat)
+- [x] Add system notifications ([SYSTEM] Alice joined the chat oder [SYSTEM] Bob left the chat)
 - [ ] Add Commands
   - [ ] /kick user
   - [ ] /rename user
