@@ -53,7 +53,9 @@ class App:
         self.socket.send(data)
 
     def reveive_msg(self, msg: str):
-        self.window.chat.add_msg(msg)
+        payload = json.loads(msg)
+
+        self.window.chat.add_msg(payload["msg"], payload["sender"]["name"], payload["type"] == "p-msg", self.name)
 
     def msg_listener(self):
         while True:

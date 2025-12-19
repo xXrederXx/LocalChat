@@ -3,6 +3,7 @@ import socket
 from client_manager import ClientManager
 from config import ENCODING
 
+
 class MessageHandler:
     def __init__(self, clients: ClientManager) -> None:
         self.clients = clients
@@ -11,13 +12,17 @@ class MessageHandler:
         sender_name = self.clients.get_name(sender)
         if not sender_name:
             return
-
+        payload = {
+            "type": "msg",
+            "msg": message,
+            "sender": {
+                "name": self.clients.get_name(sender)
+            }
+        }
         prefix = f"{sender_name} > "
         for client in self.clients.get_all_clients():
-            if client is sender:
-                continue
             try:
-                client.send((prefix + message).encode(ENCODING))
+                client.send(json.dumps(payload).encode(ENCODING))
             except OSError:
                 client.close()
                 self.clients.remove_client(client)

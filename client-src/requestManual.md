@@ -10,13 +10,14 @@
 }
 ```
 
-## SENDING COMMAND
+## SENDING PRIVATE MESSAGE
+
+cmd name > setname, active
 
 ```json
 {
-    "type":"cmd",
-    "cmd":"<cmd name>",
-    "args": ["<arg1>", "<argN>"],
+    "type":"p-msg",
+    "msg":"<message>",
     "sender": {
       "name": "<name>"
     }
