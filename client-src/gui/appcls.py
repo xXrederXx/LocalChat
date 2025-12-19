@@ -1,5 +1,6 @@
 import socket
 import threading
+import json
 
 
 class App:
@@ -8,15 +9,48 @@ class App:
         self.window: Window = Window(self)
         self.socket: socket.socket | None = None
         self.ENCODING = "utf-8"
+        self.name = str(self.socket.__hash__())
         
         self.window.mainloop()
 
+
     def send_msg(self, msg: str):
-        if self.socket == None:
+        if self.socket is None:
             print("No Connection")
             return
-        print("sendt msg")
-        self.socket.send(msg.encode(self.ENCODING))
+
+        msg = msg.strip()
+
+        if msg.startswith("/name "):
+            self.name = msg.replace("/name ")
+
+        # COMMAND
+        if msg.startswith("/"):
+            parts = msg[1:].split()
+            cmd = parts[0]
+            args = parts[1:]
+
+            payload = {
+                "type": "cmd",
+                "cmd": cmd,
+                "args": args,
+                "sender": {
+                    "name": self.name
+                }
+            }
+
+        # NORMAL MESSAGE
+        else:
+            payload = {
+                "type": "msg",
+                "msg": msg,
+                "sender": {
+                    "name": self.name
+                }
+            }
+
+        data = json.dumps(payload).encode(self.ENCODING)
+        self.socket.send(data)
 
     def reveive_msg(self, msg: str):
         self.window.chat.add_msg(msg)

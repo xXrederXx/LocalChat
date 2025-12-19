@@ -1,76 +1,83 @@
+import json
 import random
 import socket
 import threading
-import numpy
-from typing import List, Tuple, Dict
+from typing import Dict, Tuple
 
-HOST: str = "127.0.0.1"
-PORT: int = 6776
+HOST = "127.0.0.1"
+PORT = 6776
 ENCODING = "utf-8"
 
 clients: Dict[socket.socket, str] = {}
 
 
-# Send recived data to all clients
-def broadcast(message: bytes, sender_socket: socket.socket) -> None:
-    prefix = (clients[sender_socket] + " > ").encode(ENCODING)
-
+def broadcast(message: str, sender_socket: socket.socket) -> None:
+    prefix = f"{clients[sender_socket]} > "
+    print("BRODCAST")
     for client in list(clients.keys()):
         if client is not sender_socket:
             try:
-                client.send(prefix + message)
+                client.send((prefix + message).encode(ENCODING))
             except OSError:
                 client.close()
                 clients.pop(client, None)
 
 
+def handle_command(data: dict, sender_socket: socket.socket) -> None:
+    cmd = data.get("cmd")
+    args = data.get("args", [])
 
-def process_msg(msg: str, sender_socket: socket.socket) -> str | None:
-    if msg.startswith("/name "):
-        name = msg.replace("/name ", "")
+    if cmd == "setname" and args:
+        old = clients[sender_socket]
+        new = args[0]
+        clients[sender_socket] = new
+        print(f"USER UPDATE NAME (OLD: {old} NEW: {new})")
 
-        print(f"USER UPDATE NAME (OLD: {clients[sender_socket]} NEW: {name}) ")
-
-        clients.update({sender_socket: name})
-        return None
-    if (msg.startswith("/active")):
-        message = "ACTIVE USERS:"
-        for client in clients.values():
-            message += f"\n\t{client}"
+    elif cmd == "active":
+        message = "ACTIVE USERS:\n"
+        message += "\n".join(f"\t{name}" for name in clients.values())
         sender_socket.send(message.encode(ENCODING))
-        return None
-    return msg
 
 
-# Starts a new session with a client
-def handle_client(
-        client_socket: socket.socket,
-        client_address: Tuple[str, int]
-) -> None:
+def process_payload(payload: dict, sender_socket: socket.socket) -> None:
+    print(f"PAYLOAD INCOMING {payload}")
+    msg_type = payload.get("type")
+
+    if msg_type == "msg":
+        message = payload.get("msg")
+        if message:
+            broadcast(message, sender_socket)
+
+    elif msg_type == "cmd":
+        handle_command(payload, sender_socket)
+
+
+def handle_client(client_socket: socket.socket, client_address: Tuple[str, int]) -> None:
     print(f"New connection from {client_address}")
-    clients[client_socket] = "NEW USER " + str(random.randint(0, 9999))
+    clients[client_socket] = f"NEW USER {random.randint(0, 9999)}"
 
     try:
         while True:
-            message: str | None = client_socket.recv(1024).decode(ENCODING)
-            message = process_msg(message, client_socket)
-            if not message:
-                continue
-            print(message)
-            broadcast(message.encode(ENCODING), client_socket)
+            raw = client_socket.recv(1024)
+            if not raw:
+                break
+
+            try:
+                payload = json.loads(raw.decode(ENCODING))
+                process_payload(payload, client_socket)
+            except json.JSONDecodeError:
+                print("Invalid JSON received")
+
     except OSError:
         pass
     finally:
         print(f"Connection closed: {client_address}")
-        clients.pop(client_socket)
+        clients.pop(client_socket, None)
         client_socket.close()
 
 
 def start_server() -> None:
-    server_socket: socket.socket = socket.socket(
-        socket.AF_INET,
-        socket.SOCK_STREAM
-    )
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen(5)
 
@@ -78,9 +85,6 @@ def start_server() -> None:
 
     try:
         while True:
-            client_socket: socket.socket
-            client_address: Tuple[str, int]
-
             client_socket, client_address = server_socket.accept()
             threading.Thread(
                 target=handle_client,
