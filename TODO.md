@@ -15,9 +15,10 @@
   - [ ] /help
   - [ ] /uptime
   - [ ] /stats (msg sendt)
-  - [ ] 
 - [ ] Improve GUI
   - [x] My MSG -> right aligned
   - [x] other msg -> left aligned
   - [x] private -> orange color
   - [x] public -> black
+- [ ] Add enter to send msg
+- [ ] Add emoji support (likely CtkEntry issue)
