@@ -1,4 +1,4 @@
-from customtkinter import *
+from customtkinter import CTkFrame, CTkEntry, CTkButton
 from gui.appcls import App
 
 

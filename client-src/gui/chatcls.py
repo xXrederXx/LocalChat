@@ -1,4 +1,4 @@
-from customtkinter import *
+from customtkinter import CTkLabel, CTkFrame, CTkScrollableFrame
 
 
 class Chat(CTkScrollableFrame):
