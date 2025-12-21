@@ -62,7 +62,6 @@ class App:
             try:
                 if self.socket == None:
                     continue
-
                 message = self.socket.recv(1024).decode(self.ENCODING)
                 if not message:
                     break
